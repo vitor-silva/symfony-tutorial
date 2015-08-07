@@ -37,7 +37,8 @@ class EventController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('EventBundle:Event')->findAll();
+        $entities = $em->getRepository('EventBundle:Event')
+            ->getUpcomingEvents();
 
         return array(
             'entities' => $entities,
@@ -197,7 +198,7 @@ class EventController extends Controller
             throw $this->createNotFoundException('Unable to find Event entity.');
         }
 
-        $this->enforceUserSecurity($entity);
+        $this->enforceOwnerSecurity($entity);
 
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createEditForm($entity);
