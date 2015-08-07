@@ -2,9 +2,9 @@
 
 namespace Yoda\EventBundle\Controller;
 
-use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Yoda\EventBundle\Controller\Controller;
 
 use Yoda\EventBundle\Entity\Event;
 use Yoda\EventBundle\Form\EventType;
@@ -56,6 +56,9 @@ class EventController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()) {
+            $user = $this->getUser();
+            $entity->setOwner($user);
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($entity);
             $em->flush();
@@ -147,6 +150,8 @@ class EventController extends Controller
             throw $this->createNotFoundException('Unable to find Event entity.');
         }
 
+        $this->enforceOwnerSecurity($entity);
+
         $editForm = $this->createEditForm($entity);
         $deleteForm = $this->createDeleteForm($id);
 
@@ -191,6 +196,8 @@ class EventController extends Controller
             throw $this->createNotFoundException('Unable to find Event entity.');
         }
 
+        $this->enforceUserSecurity($entity);
+
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createEditForm($entity);
         $editForm->handleRequest($request);
@@ -226,6 +233,8 @@ class EventController extends Controller
                 throw $this->createNotFoundException('Unable to find Event entity.');
             }
 
+            $this->enforceUserSecurity($entity);
+
             $em->remove($entity);
             $em->flush();
         }
@@ -252,12 +261,11 @@ class EventController extends Controller
 
     private function enforceUserSecurity($role = 'ROLE_USER')
     {
-        $securityContext = $this->get('security.context');
-        if (!$securityContext->isGranted($role)) {
+        if (!$this->getSecurityContext()->isGranted($role)) {
             // Symfony 2.5
             // throw $this->createAccessDeniedException('Need ROLE_ADMIN!');
 
-            throw new AccessDeniedException('Need '. $role .'!');
+            throw new AccessDeniedException('Need ' . $role . '!');
         }
     }
 }
