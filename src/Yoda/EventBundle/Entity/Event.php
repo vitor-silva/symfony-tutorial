@@ -4,6 +4,7 @@ namespace Yoda\EventBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Yoda\UserBundle\Entity\User;
+use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * Event
  *
@@ -51,12 +52,18 @@ class Event
 
     /**
      * @ORM\ManyToOne(
-     *      targetEntity="Yoda\UserBundle\Entity\User"
-     *      inversedBy="events"
+     *  targetEntity="Yoda\UserBundle\Entity\User",
+     *  inversedBy="events"
      * )
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $owner;
+
+    /**
+     * @ORM\Column(name="slug", unique=true)
+     * @Gedmo\Slug(fields={"name"}, updatable=false)
+     */
+    private $slug;
 
     /**
      * @return mixed
@@ -174,5 +181,21 @@ class Event
     public function getDetails()
     {
         return $this->details;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param mixed $slug
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
     }
 }
