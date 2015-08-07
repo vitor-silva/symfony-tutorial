@@ -2,6 +2,7 @@
 
 namespace Yoda\EventBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Yoda\UserBundle\Entity\User;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -77,6 +78,19 @@ class Event
      */
     private $updatedAt;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="Yoda\UserBundle\Entity\User")
+     * @ORM\JoinTable(
+     *  joinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
+     *  inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")}
+     * )
+     */
+    private $attendees;
+
+    public function __construct()
+    {
+        $this->attendees = new ArrayCollection();
+    }
     /**
      * @return mixed
      */
@@ -225,5 +239,13 @@ class Event
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getAttendees()
+    {
+        return $this->attendees;
     }
 }
