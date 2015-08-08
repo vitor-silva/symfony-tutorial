@@ -36,14 +36,19 @@ class EventController extends Controller
         $user = $this->getUser();
         */
 
+        return array();
+    }
+
+    public function _upcomingEventsAction($max = null)
+    {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('EventBundle:Event')
-            ->getUpcomingEvents();
+        $events = $em->getRepository('EventBundle:Event')
+            ->getUpcomingEvents($max);
 
-        return array(
-            'entities' => $entities,
-        );
+        return $this->render('EventBundle:Event:_upcomingEvents.html.twig', array(
+            'events' => $events,
+        ));
     }
     /**
      * Creates a new Event entity.
