@@ -244,6 +244,31 @@ class EventController extends Controller
         return $this->redirect($this->generateUrl('event'));
     }
 
+    public function attendAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $event = $em->getRepository('EventBundle:Event')->find($id);
+
+        if (!$event) {
+            throw $this->createNotFoundException('Unable to find Event entity.');
+        }
+
+        $event->getAttendees()->add($this->getUser());
+        $em->persist($event);
+        $em->flush();
+
+        $url = $this->generateUrl('event_show', array(
+            'slug' => $event->getSlug()
+        ));
+
+        return $this->redirect($url);
+    }
+
+    public function unattendAction($id)
+    {
+
+    }
     /**
      * Creates a form to delete a Event entity by id.
      *
