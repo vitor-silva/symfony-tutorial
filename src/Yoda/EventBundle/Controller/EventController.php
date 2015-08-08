@@ -10,6 +10,7 @@ use Yoda\EventBundle\Entity\Event;
 use Yoda\EventBundle\Form\EventType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Response;
 /**
  * Event controller.
  *
@@ -244,7 +245,7 @@ class EventController extends Controller
         return $this->redirect($this->generateUrl('event'));
     }
 
-    public function attendAction($id)
+    public function attendAction($id, $format)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -254,12 +255,20 @@ class EventController extends Controller
             throw $this->createNotFoundException('Unable to find Event entity.');
         }
 
-        if (!$event->hasAttendee($this->getUser()))
-        {
+        if (!$event->hasAttendee($this->getUser())) {
             $event->getAttendees()->add($this->getUser());
         }
         $em->persist($event);
         $em->flush();
+
+        if ($format == 'json') {
+            $data = array(
+                'attending' => true,
+            );
+
+            $response = new Response(json_encode($data));
+            return $response;
+        }
 
         $url = $this->generateUrl('event_show', array(
             'slug' => $event->getSlug()
