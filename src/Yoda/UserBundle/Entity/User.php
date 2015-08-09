@@ -78,6 +78,10 @@ class User implements AdvancedUserInterface, \Serializable
     public function setPlainPassword($plainPassword)
     {
         $this->plainPassword = $plainPassword;
+
+        // nullify so that Doctrine saves the entity
+        // or listener will set the encoded password
+        $this->setPassword(null);
     }
 
     /**
