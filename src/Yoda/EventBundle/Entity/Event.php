@@ -11,6 +11,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table(name="yoda_event")
  * @ORM\Entity(repositoryClass="Yoda\EventBundle\Entity\EventRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Event
 {
@@ -67,7 +68,6 @@ class Event
     private $slug;
 
     /**
-     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
@@ -252,5 +252,20 @@ class Event
     public function hasAttendee(User $user)
     {
         return $this->getAttendees()->contains($user);
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist()
+    {
+        /*
+         * Lifecycle callbacks are brilliant because they’re just so easy to setup.
+         * But they have one big limitation. Because the callback is inside an entity, we don’t have access to the container or any services. This wasn’t a problem here, but what if we needed to access the router or the logger?
+         * The solution is to use a slight spin on lifecycle callbacks: events.
+         */
+        if(!$this->getCreatedAt()) {
+            $this->createdAt = new \DateTime();
+        }
     }
 }
