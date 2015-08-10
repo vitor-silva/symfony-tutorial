@@ -8,6 +8,9 @@ class DefaultController extends Controller
 {
     public function indexAction($count, $firstName)
     {
+        // get a parameter!
+        // $this->container->get('doctrine')->getManager();
+        
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository('EventBundle:Event');
 
